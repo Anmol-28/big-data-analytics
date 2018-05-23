@@ -1,0 +1,15 @@
+create table bowlers_new as
+select distinct bowler from deliveries order by bowler;
+#bowler
+
+
+create table bowlers_by_match_id as
+select match_id, bowler from deliveries group by match_id, bowler;
+#match_id, bowler
+
+
+create table bowlers_check as
+select a1.bowler, 100*(count(a1.bowler)/636) as matches_played from bowlers_by_match_id a1 where bowler = a1.bowler group by bowler order by matches_played DESC;
+
+
+select count(batsman_runs) as sixes from deliveries where batsman_runs = 6;

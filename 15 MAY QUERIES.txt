@@ -1,0 +1,28 @@
+create table highest_score as 
+select DISTINCT batsman, max(runs) as highest_score from batsman_runs_by_match group by batsman order by runs DESC;
+
+select * from (select DISTINCT batsman, max(runs) as highest_score from batsman_runs_by_match group by batsman order by runs DESC) b1 where batsman = 'CS Gayle';
+
+
+
+create table batsman_balls_faced as 
+select batsman, count(ball) as deliveries_faced from deliveries group by batsman;
+
+create table batsman_total_runs as
+select batsman, sum(batsman_runs) as total_runs from deliveries group by batsman;
+
+create table batsman_strike_rate as
+select a1.batsman, 100*(a1.total_runs/b1.deliveries_faced) as strike_rate from batsman_total_runs a1 inner join batsman_balls_faced b1 on a1.batsman = b1.batsman order by strike_rate DESC;
+
+
+create table bowler_total_runs as
+select bowler, sum(runs_given) as runs_given from bowler_runs_faced group by bowler;
+
+create table bowler_strike_rate as
+select a1.bowler, (a1.runs_given/b1.total_wickets) as bowling_rate from bowler_total_runs a1 inner join bowler_wickets b1  on a1.bowler = b1.bowler group by a1.bowler order by bowling_rate;
+
+
+create table batsman_new as 
+select DISTINCT batsman from deliveries;
+
+select a1.batsman from batsman_new a1 inner join bowlers_new b1 on a1.batsman = b1.bowler

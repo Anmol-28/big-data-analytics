@@ -1,0 +1,35 @@
+create table man_of_match_by_city as
+select player_of_match, count(player_of_match) as frequency, season, city from matches group by player_of_match, city;
+
+create table man_of_match_counts as
+select player_of_match, count(player_of_match) as frequency, season, city from matches group by player_of_match;
+
+
+create table man_of_match_season as
+select player_of_match, count(player_of_match) as frequency, season from matches group by season, player_of_match;
+
+
+
+create table man_of_match_venue as
+select player_of_match, count(player_of_match) as frequency, city from matches group by player_of_match, city;
+
+create table team_bat_records as
+select match_id, batting_team, sum(total_runs) total_scores from deliveries group by match_id, batting_team;
+
+
+create table team_bat_records_details as
+select a1.match_id, a1.batting_team, a1.total_scores, b1.season, b1.dated, b1.winner, b1.venue, b1.city from team_bat_records a1 inner join matches b1 on a1.match_id = b1.id;
+delete from team_bat_records_details where batting_team = winner;
+
+create table winner_runs as
+select match_id, batting_team, total_scores from team_bat_records_details_tmp where batting_team = winner;
+
+ALTER TABLE team_bat_records_details ADD COLUMN winner_runs INT;
+
+
+UPDATE team_bat_records_details t1
+INNER JOIN winner_runs t2 ON t1.match_id = t2.match_id
+SET t1.winner_runs = t2.total_scores;
+
+create table best_scores_teams as
+select * from team_bat_records_details where winner_runs > 160;

@@ -1,0 +1,23 @@
+create table teams as select DISTINCT team1 from matches;
+
+create table teams_win_by_season as
+select a1.team1 as team, count(winner) won, m1.season from matches m1 inner join teams a1 where m1.winner = a1.team1 group by a1.team1, m1.season;
+
+create table teams_total_by_season as
+select a1.team1 as team, count(DISTINCT id) total, m1.season from matches m1 inner join teams a1 where m1.team1 = a1.team1 or m1.team2 = a1.team1 group by a1.team1, m1.season;
+
+create table teams_lost_by_season as
+select a1.team1 as team, count(winner) lost, m1.season from matches m1 inner join teams a1 where m1.winner <> a1.team1 and (m1.team1 =a1.team1 or m1.team2 = a1.team1) and result = 'Normal' group by a1.team1, m1.season;
+
+create table teams_tie_by_season as
+select a1.team1 as team, count(winner) tie, m1.season from matches m1 inner join teams a1 where  (m1.team1 =a1.team1 or m1.team2 = a1.team1) and result = 'tie' group by a1.team1, m1.season;
+
+create table teams_no_result_by_season as
+select a1.team1 as team, count(winner) no_result, m1.season from matches m1 inner join teams a1 where (m1.team1 =a1.team1 or m1.team2 = a1.team1) and result = 'no result' group by a1.team1, m1.season;
+
+create table teams_winning_ratio_by_season as
+select a1.team, 100*(a1.won/b1.total) as WinRatio, a1.season from teams_total_by_season b1 inner join teams_win_by_season a1 on a1.team = b1.team and a1.season = b1.season;
+
+create table teams_record_by_season as
+select a1.team as TEAM, a1.total as TOTAL, b1.won as WON, c1.lost as LOST, d1.tie as TIES, e1.no_result as NORESULT, f1.WinRatio WINRATIO, a1.season as SEASON from teams_total_by_season a1 inner join teams_win_by_season b1 on a1.team = b1.team and a1.season = b1.season inner join teams_lost_by_season c1 on b1.team = c1.team and b1.season = c1.season left outer join teams_tie_by_season d1 on a1.team = d1.team and a1.season = d1.season left outer join teams_no_result_by_season e1 on a1.team = e1.team and a1.season = e1.season left outer join teams_winning_ratio_by_season f1 on a1.team = f1.team and a1.season = f1.season;
+

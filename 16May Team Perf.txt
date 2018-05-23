@@ -1,0 +1,43 @@
+create table toss_wins_by_year as
+select season, count(toss_winner) as toss_wins, toss_winner from matches group by season, toss_winner;
+
+create table toss_and_match_winner as
+select id, season, toss_winner, winner,win_by_runs, win_by_wickets, dated, venue, city from matches m1 where m1.toss_winner = m1.winner group by id, winner;
+
+create table batsman_match_count as
+select batsman, count(distinct match_id) as freq from deliveries group by batsman;
+
+create table season_city_count as
+select season, city, toss_winner, count(toss_winner) as count from matches group by season, city, toss_winner;
+
+
+create table season_toss_count as
+select season, toss_winner, count(toss_winner) as count from matches group by season, toss_winner;
+
+
+create table city_team_count as
+select city, toss_winner, count(toss_winner) as count from matches group by city, toss_winner;
+
+
+create table team_toss_count as
+select toss_winner, count(toss_winner) as count from matches group by toss_winner;
+
+create table winner_season as
+select a1.season, a1.winner from matches a1 inner join max_id b1 on b1.id = a1.id order by season;
+
+create table max_id as
+select season, max(id) as id from matches group by season;
+
+
+create table big_victories_runs as
+select winner, win_by_runs, dated, venue, city, season from matches where win_by_runs > 60 order by win_by_runs;
+
+
+create table big_victories_wickets as
+select winner, win_by_wickets, dated, venue, city, season from matches where win_by_wickets > 5 order by win_by_runs;
+
+
+
+
+
+

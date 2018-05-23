@@ -1,0 +1,38 @@
+create table teams as select DISTINCT team1 from matches;
+
+create table teams_win as
+select a1.team1 as team, count(winner) won from matches m1 inner join teams a1 where m1.winner = a1.team1 group by a1.team1;
+
+create table teams_total as
+select a1.team1 as team, count(DISTINCT id) total from matches m1 inner join teams a1 where m1.team1 = a1.team1 or m1.team2 = a1.team1 group by a1.team1;
+
+create table teams_lost as
+select a1.team1 as team, count(winner) lost from matches m1 inner join teams a1 where m1.winner <> a1.team1 and (m1.team1 =a1.team1 or m1.team2 = a1.team1) and result = 'Normal' group by a1.team1;
+
+create table teams_tie as
+select a1.team1 as team, count(winner) tie from matches m1 inner join teams a1 where  (m1.team1 =a1.team1 or m1.team2 = a1.team1) and result = 'tie' group by a1.team1;
+
+create table teams_no_result as
+select a1.team1 as team, count(winner) no_result from matches m1 inner join teams a1 where (m1.team1 =a1.team1 or m1.team2 = a1.team1) and result = 'no result' group by a1.team1;
+
+create table teams_winning_ratio as
+select a1.team as team, 100*(b1.won/a1.total) as WinRatio from teams_total a1 inner join teams_win b1 on a1.team = b1.team;
+
+create table teams_record as
+select a1.team as TEAM, a1.total as TOTAL, b1.won as WON, c1.lost as LOST, d1.tie as TIES, e1.no_result as NORESULT, f1.WinRatio as WINRATIO from teams_total a1 inner join teams_win b1 on a1.team = b1.team inner join teams_lost c1 on b1.team = c1.team left outer join teams_tie d1 on a1.team = d1.team left outer join teams_no_result e1 on a1.team = e1.team left outer join teams_winning_ratio f1 on a1.team = f1.team order by a1.total DESC;
+
+
+
+#create table teams_win_lost as
+#select a1.team, a1.total, b1.won, c1.lost from teams_total a1 inner join teams_win b1 on a1.team = b1.team inner join teams_lost c1 on b1.team = c1.team group by a1.team;
+
+
+#select a1.team, a1.total, a1.won, a1.lost, b1.tie from teams_win_lost a1 left outer join teams_tie b1 on a1.team = b1.team;
+
+#select a1.team, a1.total, a1.won, a1.lost, b1.tie, c1.no_result from teams_win_lost a1 left outer join teams_tie b1 on a1.team = b1.team left outer join teams_no_result c1 on a1.team = c1.team;
+
+
+
+select m1.season, a1.team1 as team, count(winner) won from matches m1 inner join teams a1 where m1.winner = a1.team1 group by m1.season, a1.team1;
+
+
